@@ -10,7 +10,7 @@ Built for **SEAS-8525** by **Dr. Elbasheer**, George Washington University.
 
 ## What this is
 
-A visual, hands-on companion to a CNN Week2 lecture. Every core operation is something you can step through and watch: the filter slides, the numbers multiply and add, the feature map fills in, the map shrinks, the vector grows back into an image. The goal is intuition first, with the exact equations shown right next to each worked example.
+A visual, hands-on companion to a SEAS-8525 CNN Week2 lecture. Every core operation is something you can step through and watch: the filter slides, the numbers multiply and add, the feature map fills in, the map shrinks, the vector grows back into an image. The goal is intuition first, with the exact equations shown right next to each worked example.
 
 
 
