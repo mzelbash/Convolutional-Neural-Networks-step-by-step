@@ -12,7 +12,7 @@ Built for **SEAS-8525** by **Dr. Elbasheer**, George Washington University.
 
 A visual, hands-on companion to a CNN lecture series. Every core operation is something you can step through and watch: the filter slides, the numbers multiply and add, the feature map fills in, the map shrinks, the vector grows back into an image. The goal is intuition first, with the exact equations shown right next to each worked example.
 
-It is designed to be projected in a lecture hall (large type, high contrast, a light background) and to be explored by students on their own afterward.
+
 
 ## Highlights
 
@@ -69,10 +69,7 @@ An internet connection is needed the first time you open it, because the fonts a
 - [KaTeX](https://katex.org/) for fast, crisp equation rendering.
 - SVG and the Canvas API for the diagrams and animations.
 
-## Notes for instructors
-
-The chapters are ordered to match a typical teaching sequence: the basics, then a worked classic network, then the modern blocks, then dataset and transfer-learning guidance for students beginning research. Chapters on U-Net and attention are written as primers that set up later lectures on autoencoders and transformers rather than replacing them.
-
+ 
 ## Feedback
 
 Issues and suggestions are welcome. If something is unclear or you would like a chapter added, open an issue on this repository.
