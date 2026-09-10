@@ -1253,7 +1253,7 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
 
     <div class="lab">
       <p class="lab-head">Channel attention (squeeze and excitation)</p>
-      <p class="lab-note">The network looks at all 8 channels, decides how important each one is (a weight from 0 to 1), and rescales them. Press Recalibrate to let it choose new weights and watch channels get boosted or damped.</p>
+      <p class="lab-note">The network looks at all 8 channels, decides how important each one is (a weight from 0 to 1), and rescales them. Press  <b style="color: blue;">Recalibrate</b> to let it choose new weights and watch channels get boosted or damped.</p>
       <div class="controls"><button class="btn" id="seBtn">Recalibrate weights</button></div>
       <div id="seViz"></div>
     </div>
@@ -1293,7 +1293,7 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
   <section class="panel" data-panel="19">
     <div class="eyebrow">Chapter 20</div>
     <h1 class="title">Transfer learning and fine-tuning</h1>
-    <p class="lead">You rarely train an image model from scratch. A model pretrained on ImageNet already knows generic visual features, edges, textures, and object parts, so you reuse that backbone and only teach it your task. The real question is how much of it to retrain.</p>
+    <p class="lead"><strong><span style="color: #0066cc;">You rarely train an image model from scratch </span></strong>. A model pretrained on ImageNet already knows generic visual features, edges, textures, and object parts, so you reuse that  <b style="color: red;">backbone</b> and only teach it your task. <strong><em>The real question is how much of it to retrain?.</em></strong></p>
 
     <h3 class="sub">The three modes</h3>
     <div class="walk">
