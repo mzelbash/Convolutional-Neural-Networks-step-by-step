@@ -219,6 +219,22 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
 .faq-a{display:none;padding:2px 18px 16px;font-size:16px;line-height:1.62;color:#28425f;max-width:82ch}
 .faq-item.open .faq-a{display:block}
 .faq-a b{color:var(--navy)}
+.se-wrap{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin:8px 0}
+.se-col{display:flex;flex-direction:column;align-items:center;gap:6px;width:44px}
+.se-track{width:34px;height:110px;background:#eef2f8;border-radius:6px;position:relative;display:flex;align-items:flex-end}
+.se-fill{width:100%;border-radius:6px 6px 0 0;transition:height .5s, background .5s;height:0}
+.se-ghost{position:absolute;left:0;width:100%;height:0;border-top:2px dashed #b3c1d1}
+.se-wt{font-family:var(--font-mono);font-weight:700;font-size:12px}
+.se-lbl{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+.attn-heat{display:inline-grid;gap:2px;border-radius:6px;overflow:hidden}
+.attn-heat .hc{width:30px;height:30px;border-radius:3px}
+.tl-grid{display:grid;grid-template-columns:118px 1fr 1fr;gap:8px;margin:14px 0;align-items:stretch}
+.tl-hd{font-family:var(--font-head);font-weight:700;font-size:13.5px;color:var(--navy);display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
+.tl-rh{justify-content:flex-start;text-align:left}
+.tl-cell{border:2px solid var(--line);border-radius:12px;padding:13px 15px;background:#fff;transition:border-color .2s, background .2s, box-shadow .2s}
+.tl-cell.active{border-color:var(--gold);background:var(--callout);box-shadow:0 3px 14px rgba(16,42,67,.1)}
+.tl-cell .m{font-family:var(--font-head);font-weight:700;color:var(--navy);font-size:14.5px;margin-bottom:3px}
+.tl-cell .s{font-size:13px;color:#28425f;line-height:1.45}
 
 /* ---------- Softmax / bars ---------- */
 .barlist{display:flex;flex-direction:column;gap:8px;margin:10px 0}
@@ -1162,9 +1178,158 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
     <p class="lab-note" style="max-width:78ch">Zoom your browser in to read the details. Look for the <b>bottleneck block</b> from Chapter 15 (1×1 reduce, 3×3 spatial, 1×1 expand) with the <b>skip connection</b> from Chapter 14 wrapped around it, and notice how each conv*_x stage simply repeats that block a fixed number of times. Adding up the convolution layers across the five stages, plus Conv1 and the final dense layer, gives 50.</p>
   </section>
 
-  <!-- ============ 17 FAQ ============ -->
+  <!-- ============ 17 U-NET ============ -->
   <section class="panel" data-panel="16">
     <div class="eyebrow">Chapter 17</div>
+    <h1 class="title">U-Net: growing the picture back</h1>
+    <p class="lead">Everything so far has squeezed an image down to features. Some tasks need the opposite: a full-resolution answer for every pixel. U-Net is the classic design for that, and it reuses two tools you already have, transpose convolution (Chapter 13) and skip connections (Chapter 14).</p>
+
+    <div class="callout"><span class="tag">ONE NEW WORD</span>
+      A CNN that shrinks an image into features is an <b>encoder</b>. A <b>decoder</b> is its mirror image that grows those features back into a full-size output. Together they form an <b>encoder / decoder</b>. You will meet this same shape next week as the autoencoder; here it is doing segmentation.</div>
+
+    <p>Why grow the image back at all? Classification gives <strong>one label for the whole image</strong>. Segmentation gives <strong>a label for every pixel</strong>: tumor vs healthy tissue, road vs car vs sky. To label each pixel we have to return to the original resolution, so the network needs an expanding path, not just a shrinking one.</p>
+
+    <div class="lab" style="padding:18px">
+      <p class="lab-head">The U shape</p>
+      <p class="lab-note">The left path shrinks the image into features (encoder). The right path grows it back (decoder). The dashed links copy fine detail straight across so it is not lost.</p>
+      <svg viewBox="0 0 660 340" width="660" height="340" style="max-width:100%">
+        <defs>
+          <marker id="uah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8aa0b6"/></marker>
+          <marker id="usk" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1E7E4E"/></marker>
+        </defs>
+        <text x="150" y="18" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-weight="700" font-size="13" fill="#002147">ENCODER (shrink)</text>
+        <text x="500" y="18" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-weight="700" font-size="13" fill="#1F7A5A">DECODER (grow back)</text>
+
+        <!-- input / output -->
+        <line x1="22" y1="45" x2="83" y2="45" stroke="#8aa0b6" stroke-width="2" marker-end="url(#uah)"/>
+        <text x="20" y="34" font-family="JetBrains Mono,monospace" font-size="11" fill="#5B6B80">image</text>
+        <line x1="557" y1="45" x2="620" y2="45" stroke="#8aa0b6" stroke-width="2" marker-end="url(#uah)"/>
+        <text x="600" y="34" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#5B6B80">mask</text>
+
+        <!-- encoder boxes -->
+        <rect x="85"  y="27"  width="130" height="36" rx="6" fill="#002147"/><text x="150" y="50" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#fff">128² conv</text>
+        <rect x="100" y="92"  width="100" height="36" rx="6" fill="#0A3160"/><text x="150" y="115" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#fff">64²</text>
+        <rect x="113" y="157" width="74"  height="36" rx="6" fill="#12406e"/><text x="150" y="180" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#fff">32²</text>
+        <!-- bottleneck -->
+        <rect x="245" y="228" width="150" height="42" rx="8" fill="#7A5CC4"/><text x="320" y="254" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#fff">16² bottleneck</text>
+        <!-- decoder boxes -->
+        <rect x="453" y="157" width="74"  height="36" rx="6" fill="#1a6e4e"/><text x="490" y="180" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#fff">32²</text>
+        <rect x="440" y="92"  width="100" height="36" rx="6" fill="#1F7A5A"/><text x="490" y="115" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#fff">64²</text>
+        <rect x="425" y="27"  width="130" height="36" rx="6" fill="#259066"/><text x="490" y="50" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#fff">128² up-conv</text>
+
+        <!-- encoder down arrows (pool) -->
+        <line x1="150" y1="63"  x2="150" y2="91"  stroke="#8aa0b6" stroke-width="2" marker-end="url(#uah)"/>
+        <line x1="150" y1="128" x2="150" y2="156" stroke="#8aa0b6" stroke-width="2" marker-end="url(#uah)"/>
+        <line x1="150" y1="193" x2="248" y2="236" stroke="#8aa0b6" stroke-width="2" marker-end="url(#uah)"/>
+        <text x="120" y="86" font-family="JetBrains Mono,monospace" font-size="10" fill="#8aa0b6">pool</text>
+        <!-- decoder up arrows (transpose conv) -->
+        <line x1="392" y1="236" x2="490" y2="193" stroke="#8aa0b6" stroke-width="2" marker-end="url(#uah)"/>
+        <line x1="490" y1="157" x2="490" y2="129" stroke="#8aa0b6" stroke-width="2" marker-end="url(#uah)"/>
+        <line x1="490" y1="92"  x2="490" y2="64"  stroke="#8aa0b6" stroke-width="2" marker-end="url(#uah)"/>
+        <text x="497" y="86" font-family="JetBrains Mono,monospace" font-size="10" fill="#8aa0b6">up-conv</text>
+
+        <!-- skip connections (dashed, horizontal) -->
+        <line x1="215" y1="45"  x2="424" y2="45"  stroke="#1E7E4E" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#usk)"/>
+        <line x1="200" y1="110" x2="439" y2="110" stroke="#1E7E4E" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#usk)"/>
+        <line x1="187" y1="175" x2="452" y2="175" stroke="#1E7E4E" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#usk)"/>
+        <text x="320" y="40" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1E7E4E">skip: copy detail across</text>
+      </svg>
+    </div>
+
+    <div class="callout"><span class="tag">WHY THE SKIPS MATTER HERE</span>
+      Pooling on the way down throws away fine spatial detail, exactly what you need to draw a crisp boundary. The dashed links hand the high-resolution feature maps from the encoder straight to the matching decoder level, so edges stay sharp instead of blurry. Same skip-connection idea as ResNet, used here to preserve detail rather than to ease training.</div>
+
+    <p>You will see this U everywhere: medical image segmentation, satellite and road maps, background removal, and, in a scaled-up form, as the backbone of modern diffusion image generators. It ties together convolution, pooling, transpose convolution, and skip connections in one shape.</p>
+  </section>
+
+  <!-- ============ 18 ATTENTION ============ -->
+  <section class="panel" data-panel="17">
+    <div class="eyebrow">Chapter 18</div>
+    <h1 class="title">A first look at attention</h1>
+    <p class="lead">So far every feature map is treated equally. Attention changes that: it is a set of <strong>learned weights that say which features matter most right now</strong>, so the network can turn some up and others down instead of giving them all the same say.</p>
+
+    <div class="callout"><span class="tag">A TASTE, NOT THE FULL STORY</span>
+      Full attention is the heart of transformers, which is a lecture of its own. Here we look at the simplest, most CNN-native version so the idea feels familiar before we take it further.</div>
+
+    <div class="lab">
+      <p class="lab-head">Channel attention (squeeze and excitation)</p>
+      <p class="lab-note">The network looks at all 8 channels, decides how important each one is (a weight from 0 to 1), and rescales them. Press Recalibrate to let it choose new weights and watch channels get boosted or damped.</p>
+      <div class="controls"><button class="btn" id="seBtn">Recalibrate weights</button></div>
+      <div id="seViz"></div>
+    </div>
+
+    <h3 class="sub">It can also learn where to look</h3>
+    <p>The same idea works over space, not just channels. A spatial attention map is a learned heatmap that brightens the regions worth focusing on and dims the rest, so later layers spend their effort where it counts.</p>
+    <div class="gwrap" style="align-items:flex-start"><div id="attnHeat"></div></div>
+
+    <div class="callout"><span class="tag">WHERE THIS GOES NEXT</span>
+      CNN attention <b>reweights feature maps the network already computed</b>. In a transformer, attention goes further: every location computes, from the data itself, how much to attend to every other location. That full form, and the Vision Transformer, is the next lecture.</div>
+  </section>
+
+  <!-- ============ 19 DATASETS ============ -->
+  <section class="panel" data-panel="18">
+    <div class="eyebrow">Chapter 19</div>
+    <h1 class="title">Image datasets worth knowing</h1>
+    <p class="lead">If you head into a research project next semester, half the battle is knowing what data already exists. These are the datasets you will see cited constantly, from quick prototypes to the benchmark that pretrained models are built on.</p>
+    <table class="lenet">
+      <thead><tr><th>Dataset</th><th>Size</th><th>Resolution</th><th>Typical use</th><th>Reach for it when</th></tr></thead>
+      <tbody>
+        <tr><td class="layer">MNIST</td><td>70k images, 10 classes</td><td>28×28 grayscale</td><td>handwritten digit classification</td><td>a first prototype or sanity check</td></tr>
+        <tr><td class="layer">Fashion-MNIST</td><td>70k images, 10 classes</td><td>28×28 grayscale</td><td>clothing classification</td><td>a harder drop-in for MNIST</td></tr>
+        <tr><td class="layer">CIFAR-10</td><td>60k images, 10 classes</td><td>32×32 color</td><td>small object classification</td><td>quick experiments on one GPU</td></tr>
+        <tr><td class="layer">CIFAR-100</td><td>60k images, 100 classes</td><td>32×32 color</td><td>fine-grained classification</td><td>same as CIFAR-10 but harder</td></tr>
+        <tr><td class="layer">ImageNet (ILSVRC)</td><td>~1.28M images, 1000 classes</td><td>variable (~224² used)</td><td>large-scale classification</td><td>the source of pretrained backbones</td></tr>
+        <tr><td class="layer">COCO</td><td>~330k images, 80 categories</td><td>variable</td><td>detection, segmentation, captioning</td><td>tasks beyond classification (boxes, masks)</td></tr>
+        <tr><td class="layer">Pascal VOC</td><td>~11k images, 20 classes</td><td>variable</td><td>detection, segmentation</td><td>a small, classic benchmark</td></tr>
+        <tr><td class="layer">Places365</td><td>~1.8M images, 365 classes</td><td>variable</td><td>scene recognition</td><td>scenes and context, not objects</td></tr>
+        <tr><td class="layer">Domain sets (ISIC, ChestX-ray14, …)</td><td>varies</td><td>varies</td><td>medical and specialty imaging</td><td>most real research uses a domain set like these</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><span class="tag">HOW TO PICK</span>
+      Prototype your idea on <b>MNIST or CIFAR</b>, where a run takes minutes. Benchmark against <b>ImageNet-pretrained</b> weights (next chapter). Use <b>COCO or VOC</b> if your task needs boxes or per-pixel masks, not just one label. For a research project, expect to use a <b>domain-specific</b> set, and check its license and known biases before you build on it.</div>
+  </section>
+
+  <!-- ============ 20 TRANSFER LEARNING ============ -->
+  <section class="panel" data-panel="19">
+    <div class="eyebrow">Chapter 20</div>
+    <h1 class="title">Transfer learning and fine-tuning</h1>
+    <p class="lead">You rarely train an image model from scratch. A model pretrained on ImageNet already knows generic visual features, edges, textures, and object parts, so you reuse that backbone and only teach it your task. The real question is how much of it to retrain.</p>
+
+    <h3 class="sub">The three modes</h3>
+    <div class="walk">
+      <div class="wstep"><span class="wn">1</span><div class="wtx"><b>Feature extraction.</b> Freeze the pretrained backbone and train only a new head. Cheapest and safest; best when data is scarce.</div></div>
+      <div class="wstep"><span class="wn">2</span><div class="wtx"><b>Fine-tune the top layers.</b> Unfreeze the upper blocks and train them at a low learning rate while keeping the early layers fixed. A middle ground.</div></div>
+      <div class="wstep"><span class="wn">3</span><div class="wtx"><b>Fine-tune everything.</b> Unfreeze all layers, still starting from pretrained weights. Adapts the most, but needs more data.</div></div>
+    </div>
+
+    <div class="lab">
+      <p class="lab-head">Which mode should I use?</p>
+      <p class="lab-note">Pick your situation on the two axes. The grid highlights the recommended mode and explains why.</p>
+      <div class="controls">
+        <div class="ctrl"><label>How much labeled data?</label><div class="seg" id="tlData"><button class="on" data-v="L">Little</button><button data-v="H">A lot</button></div></div>
+        <div class="ctrl"><label>How similar to ImageNet?</label><div class="seg" id="tlDom"><button class="on" data-v="S">Similar</button><button data-v="D">Different</button></div></div>
+      </div>
+      <div class="tl-grid">
+        <div class="tl-hd"></div>
+        <div class="tl-hd">Similar to ImageNet</div>
+        <div class="tl-hd">Different from ImageNet</div>
+        <div class="tl-hd tl-rh">Little data</div>
+        <div class="tl-cell" data-k="LS"><div class="m">Feature extraction</div><div class="s">Freeze backbone, train a new head.</div></div>
+        <div class="tl-cell" data-k="LD"><div class="m">Careful feature extraction</div><div class="s">Frozen features plus heavy regularization.</div></div>
+        <div class="tl-hd tl-rh">Lots of data</div>
+        <div class="tl-cell" data-k="HS"><div class="m">Fine-tune</div><div class="s">Adapt the backbone at a low LR.</div></div>
+        <div class="tl-cell" data-k="HD"><div class="m">Fine-tune all / from scratch</div><div class="s">Unfreeze everything.</div></div>
+      </div>
+      <div class="callout" id="tlDetail" style="margin-bottom:0"></div>
+    </div>
+
+    <div class="callout"><span class="tag">PRACTICAL NOTES</span>
+      Always replace the final head to match your number of classes. Fine-tune with a <b>smaller learning rate</b> than you would use from scratch, so you nudge the pretrained weights rather than wreck them. Freezing layers trains faster and uses less memory. On small datasets, lean toward freezing and watch closely for overfitting.</div>
+  </section>
+
+  <!-- ============ 21 FAQ ============ -->
+  <section class="panel" data-panel="20">
+    <div class="eyebrow">Chapter 21</div>
     <h1 class="title">Questions students actually ask</h1>
     <p class="lead">A plain-language FAQ that revisits the "why" behind everything in this deck. Tap any question to open its answer.</p>
     <div style="margin:6px 0 4px"><button class="btn ghost" id="faqCollapse">Collapse all</button></div>
@@ -1230,7 +1395,7 @@ const CONV_IN = [
 ============================================================ */
 const CHAPTERS = [
  'An image is numbers','The filter','Convolution','Color (RGB)','Stride & padding',
- 'Many filters','Pooling','Activation','Flatten & classify','Why it works','Full pipeline','AlexNet example','Transpose conv','Skip connections','1×1 conv','ResNet-50','Common questions'
+ 'Many filters','Pooling','Activation','Flatten & classify','Why it works','Full pipeline','AlexNet example','Transpose conv','Skip connections','1×1 conv','ResNet-50','U-Net','First look at attention','Datasets','Transfer learning','Common questions'
 ];
 const rail = $('#rail');
 CHAPTERS.forEach((name,i)=>{
@@ -2084,6 +2249,83 @@ const PRESET_DESC = {
     });
   });
   $('#faqCollapse').addEventListener('click',()=>$$('#faqRoot .faq-item.open').forEach(i=>i.classList.remove('open')));
+})();
+
+/* ============================================================
+   18 ATTENTION (squeeze-and-excitation + spatial heatmap)
+============================================================ */
+(function(){
+  const base=[0.72,0.45,0.9,0.32,0.6,0.82,0.5,0.66];
+  const viz=$('#seViz'); let cols=[]; let note=null;
+  function build(){
+    viz.innerHTML='';
+    const wrap=el('div','se-wrap'); cols=[];
+    for(let i=0;i<8;i++){
+      const col=el('div','se-col');
+      const track=el('div','se-track');
+      const ghost=el('div','se-ghost'); ghost.style.height=(base[i]*110)+'px';
+      const fill=el('div','se-fill');
+      track.appendChild(fill); track.appendChild(ghost);
+      const wt=el('div','se-wt','—'); const lbl=el('div','se-lbl','ch '+(i+1));
+      col.appendChild(track); col.appendChild(wt); col.appendChild(lbl);
+      wrap.appendChild(col); cols.push({fill,wt});
+    }
+    viz.appendChild(wrap);
+    note=el('p','lab-note'); note.style.marginTop='12px'; viz.appendChild(note);
+  }
+  function recalc(){
+    cols.forEach((c,i)=>{
+      const w=Math.round((0.15+Math.random()*0.85)*100)/100;
+      c.fill.style.height=(base[i]*w*110)+'px';
+      c.wt.textContent=w.toFixed(2);
+      let col = w>=0.66?'#1F7A5A' : (w<=0.33?'#9aa7b5':'#1E5AA8');
+      c.fill.style.background=col; c.wt.style.color=col;
+    });
+    note.innerHTML='The dashed line is each channel\u2019s original strength; the solid bar is after attention. This round the network <b style="color:#1F7A5A">emphasized</b> the green channels and <b style="color:#7a8794">damped</b> the grey ones. The number under each is its 0-to-1 weight.';
+  }
+  build(); recalc();
+  $('#seBtn').addEventListener('click',recalc);
+
+  // spatial attention heatmap
+  (function(){
+    const grid=el('div','attn-heat'); grid.style.gridTemplateColumns='repeat(8,30px)';
+    const cx=5.2, cy=2.6;
+    for(let r=0;r<6;r++)for(let c=0;c<8;c++){
+      const d2=(c-cx)*(c-cx)+(r-cy)*(r-cy); const v=Math.exp(-d2/6);
+      const cell=el('div','hc');
+      const g=Math.round(255-v*120), b=Math.round(255-v*205);
+      cell.style.background=`rgb(255,${g},${b})`;
+      grid.appendChild(cell);
+    }
+    const wrap=el('div'); wrap.style.cssText='display:flex;flex-direction:column;align-items:flex-start;gap:6px';
+    wrap.appendChild(grid);
+    const cap=el('div','ce-cap','brighter = more attention'); cap.style.marginTop='2px';
+    wrap.appendChild(cap);
+    $('#attnHeat').appendChild(wrap);
+  })();
+})();
+
+/* ============================================================
+   20 TRANSFER LEARNING picker
+============================================================ */
+(function(){
+  if(!$('#tlData')) return;
+  let data='L', dom='S';
+  const CELLS={
+    LS:{m:'Feature extraction', d:'Little data with a similar domain is the easy case. The pretrained features already fit your images, so freeze the backbone and train only a new head. Few parameters to learn, low overfitting risk, and it trains fast.'},
+    LD:{m:'Careful feature extraction', d:'Little data plus a domain gap is the riskiest cell. You cannot fine-tune much without overfitting, so stay conservative: train a new head on frozen mid-level features, lean on heavy augmentation and early stopping, and only unfreeze the very top block if you must.'},
+    HS:{m:'Fine-tune', d:'Lots of data with a similar domain means you can afford to adapt the backbone. Start from pretrained weights and fine-tune the upper layers, often all of them, at a small learning rate. This beats freezing once you have enough labels.'},
+    HD:{m:'Fine-tune all, or train from scratch', d:'Lots of data with a large domain gap: pretrained weights still give a head start, so unfreeze every layer and adapt them. If your images look nothing like natural photos (raw sensor data, spectrograms, microscopy) and the set is large, training from scratch becomes viable.'}
+  };
+  function render(){
+    const key=data+dom;
+    $$('.tl-cell').forEach(c=>c.classList.toggle('active', c.dataset.k===key));
+    const info=CELLS[key];
+    $('#tlDetail').innerHTML=`<div style="font-family:var(--font-head);font-weight:700;color:var(--navy);font-size:17px;margin-bottom:6px">${info.m}</div><p style="margin:0;max-width:80ch">${info.d}</p>`;
+  }
+  $$('#tlData button').forEach(b=>b.addEventListener('click',()=>{ $$('#tlData button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); data=b.dataset.v; render(); }));
+  $$('#tlDom button').forEach(b=>b.addEventListener('click',()=>{ $$('#tlDom button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); dom=b.dataset.v; render(); }));
+  render();
 })();
 
 /* render any leftover static tex after katex loads */
