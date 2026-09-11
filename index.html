@@ -1348,12 +1348,70 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
       </ul></div>
   </section>
 
-  <!-- ============ 16 RESNET-50 ============ -->
+  <!-- ============ 16 GLOBAL AVERAGE POOLING ============ -->
   <section class="panel" data-panel="15">
     <div class="eyebrow">Chapter 16</div>
+    <h1 class="title">Global Average Pooling (GAP)</h1>
+    <ul class="klist lead-list">
+      <li>Global Average Pooling is actually very simple.</li>
+      <li>For each feature map (channel) coming out of a CNN, take the <span class="kw kw-blue">average of all its spatial values</span>.</li>
+      <li>Replace the entire feature map with that <span class="kw kw-green">one number</span>.</li>
+    </ul>
+
+    <h3 class="sub">A tiny worked example</h3>
+    <ul class="klist">
+      <li>Suppose a CNN layer produces one 3×3 feature map, and GAP averages every value in it:</li>
+    </ul>
+    <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin:8px 0 12px">
+      <span id="gapMat3"></span>
+      <span style="font-size:22px;color:var(--muted)">&rarr;</span>
+      <span id="gapAvg3"></span>
+    </div>
+    <ul class="klist">
+      <li>That entire 3×3 feature map becomes a single number: <span class="kw kw-green">3</span>.</li>
+    </ul>
+
+    <h3 class="sub">Scaling up to many channels</h3>
+    <ul class="klist">
+      <li>Now suppose the CNN has 512 channels, so the block is <span class="kw kw-blue">512 × 7 × 7</span>.</li>
+      <li>GAP independently averages each 7×7 feature map, which gives a vector of size 512:</li>
+    </ul>
+    <div style="margin:8px 0 12px"><span id="gapVec"></span></div>
+
+    <div class="callout"><span class="tag">WHY IS IT CALLED "GLOBAL"?</span>
+      <ul class="klist">
+        <li>It averages over the <span class="kw kw-blue">entire spatial area</span> of each feature map.</li>
+        <li>Regular average pooling might average small windows, 2×2 at a time.</li>
+        <li>Global average pooling says: use the <span class="kw kw-green">whole feature map</span> as one pooling region.</li>
+      </ul></div>
+
+    <h3 class="sub">What does that number mean?</h3>
+    <ul class="klist">
+      <li>Suppose one channel has learned to detect something like dog fur.</li>
+      <li>Its feature map might look roughly like this, where high values mean "I found the feature here":</li>
+    </ul>
+    <div style="margin:8px 0 12px"><span id="gapMatFur"></span></div>
+    <ul class="klist">
+      <li>GAP does not care exactly <span class="kw kw-gold">where</span> the feature occurred.</li>
+      <li>It summarizes one thing: overall, <span class="kw kw-blue">how strongly was this feature present</span> in the image?</li>
+      <li>So each channel contributes one number describing how strongly its learned feature appeared.</li>
+    </ul>
+
+    <div class="callout"><span class="tag">THE MENTAL MODEL</span>
+      <div style="margin:4px 0 0"><span id="gapBox"></span></div>
+    </div>
+
+    <ul class="klist">
+      <li>This shows up in practice: ResNet-based <span class="kw kw-gold">SimCLR</span> uses GAP, which we will revisit in the contrastive-learning walkthrough.</li>
+    </ul>
+  </section>
+
+  <!-- ============ 16 RESNET-50 ============ -->
+  <section class="panel" data-panel="16">
+    <div class="eyebrow">Chapter 17</div>
     <h1 class="title">ResNet-50, put together</h1>
     <ul class="klist lead-list">
-      <li>This is where the last two chapters live in a real network.</li>
+      <li>This is where <span class="kw kw-green">skip connections</span> and the <span class="kw kw-gold">1×1 bottleneck</span> come together in a real network.</li>
       <li>ResNet-50 stacks the <span class="kw kw-gold">bottleneck blocks</span> (each a 1×1, a 3×3, and a 1×1) inside <span class="kw kw-green">skip connections</span>, grouped into five stages, to reach 50 layers.</li>
       <li>The diagram shows how the network is organized and exactly where the number 50 comes from.</li>
     </ul>
@@ -1364,8 +1422,8 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
   </section>
 
   <!-- ============ 17 U-NET ============ -->
-  <section class="panel" data-panel="16">
-    <div class="eyebrow">Chapter 17</div>
+  <section class="panel" data-panel="17">
+    <div class="eyebrow">Chapter 18</div>
     <h1 class="title">U-Net: growing the picture back</h1>
     <ul class="klist lead-list">
       <li>Everything so far has squeezed an image down to features.</li>
@@ -1441,8 +1499,8 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
   </section>
 
   <!-- ============ 18 ATTENTION ============ -->
-  <section class="panel" data-panel="17">
-    <div class="eyebrow">Chapter 18</div>
+  <section class="panel" data-panel="18">
+    <div class="eyebrow">Chapter 19</div>
     <h1 class="title">A first look at attention</h1>
     <ul class="klist lead-list">
       <li>So far every feature map is treated equally.</li>
@@ -1476,8 +1534,8 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
   </section>
 
   <!-- ============ 19 DATASETS ============ -->
-  <section class="panel" data-panel="18">
-    <div class="eyebrow">Chapter 19</div>
+  <section class="panel" data-panel="19">
+    <div class="eyebrow">Chapter 20</div>
     <h1 class="title">Image datasets worth knowing</h1>
     <ul class="klist lead-list">
       <li>As you head into your research project <span class="kw kw-blue">next semester</span>, half the battle is knowing what data already exists.</li>
@@ -1510,8 +1568,8 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
   </section>
 
   <!-- ============ 20 TRANSFER LEARNING ============ -->
-  <section class="panel" data-panel="19">
-    <div class="eyebrow">Chapter 20</div>
+  <section class="panel" data-panel="20">
+    <div class="eyebrow">Chapter 21</div>
     <h1 class="title">Transfer learning and fine-tuning</h1>
     <ul class="klist lead-list">
       <li><span class="kw kw-blue">You rarely train an image model from scratch.</span></li>
@@ -1553,8 +1611,8 @@ table.lenet .layer{font-family:var(--font-mono);font-weight:700;color:var(--navy
   </section>
 
   <!-- ============ 21 FAQ ============ -->
-  <section class="panel" data-panel="20">
-    <div class="eyebrow">Chapter 21</div>
+  <section class="panel" data-panel="21">
+    <div class="eyebrow">Chapter 22</div>
     <h1 class="title">Questions students actually ask</h1>
     <ul class="klist lead-list">
       <li>A plain-language FAQ that revisits the <span class="kw kw-gold">"why"</span> behind everything in this deck.</li>
@@ -1623,7 +1681,7 @@ const CONV_IN = [
 ============================================================ */
 const CHAPTERS = [
  'An image is numbers','The filter','Convolution','Color (RGB)','Stride & padding',
- 'Many filters','Pooling','Activation','Flatten & classify','Why CNN works','Full pipeline','AlexNet example','Transpose conv','Skip connections','1×1 conv','ResNet-50','U-Net','First look at attention','Datasets','Transfer learning','Common questions'
+ 'Many filters','Pooling','Activation','Flatten & classify','Why CNN works','Full pipeline','AlexNet example','Transpose conv','Skip connections','1×1 conv','Global average pooling','ResNet-50','U-Net','First look at attention','Datasets','Transfer learning','Common questions'
 ];
 const rail = $('#rail');
 CHAPTERS.forEach((name,i)=>{
@@ -2554,6 +2612,15 @@ const PRESET_DESC = {
     c.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); render(c.dataset.k); } });
   });
   render('LS');
+})();
+
+(function(){
+  if(!$('#gapMat3')) return;
+  tex($('#gapMat3'),'\\begin{bmatrix}1&2&3\\\\2&4&6\\\\1&3&5\\end{bmatrix}',true);
+  tex($('#gapAvg3'),'\\text{GAP}=\\dfrac{1+2+3+2+4+6+1+3+5}{9}=\\dfrac{27}{9}=3',true);
+  tex($('#gapVec'),'512\\times 7\\times 7\\;\\xrightarrow{\\ \\text{GAP}\\ }\\;[\\,h_1,\\,h_2,\\,\\dots,\\,h_{512}\\,]',true);
+  tex($('#gapMatFur'),'\\begin{bmatrix}0&0&1&2\\\\0&3&5&2\\\\0&4&6&1\\\\0&1&2&0\\end{bmatrix}',true);
+  tex($('#gapBox'),'\\boxed{\\text{Feature map}}\\;\\rightarrow\\;\\boxed{\\text{How much of this feature exists?}}',true);
 })();
 
 /* render any leftover static tex after katex loads */
